@@ -7,6 +7,7 @@
             margin: 0; 
             padding: 0; 
             background: #000;
+            overflow: hidden;
         }
         canvas { 
             display: block; 
@@ -34,12 +35,20 @@
             return urlParams;
         }
 
-        // Função principal de desenho
-        function drawBanner() {
+        // Carregar imagens
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+
+        // Desenhar ícones e elementos visuais
+        function drawNeonElements() {
             const W = canvas.width, H = canvas.height;
             const urlParams = getUrlParams();
-
-            ctx.clearRect(0, 0, W, H);
 
             // Fundo gradiente
             const g = ctx.createLinearGradient(0, 0, 0, H);
@@ -48,68 +57,190 @@
             ctx.fillStyle = g;
             ctx.fillRect(0, 0, W, H);
 
-            // Efeito de brilho radial
+            // Efeito de brilho radial neon
             const g2 = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, H);
-            g2.addColorStop(0, "rgba(0, 247, 255, 0.05)");
-            g2.addColorStop(1, "rgba(180, 0, 255, 0.05)");
+            g2.addColorStop(0, "rgba(0, 247, 255, 0.1)");
+            g2.addColorStop(0.5, "rgba(180, 0, 255, 0.05)");
+            g2.addColorStop(1, "rgba(255, 0, 200, 0.02)");
             ctx.fillStyle = g2;
             ctx.fillRect(0, 0, W, H);
 
-            // Texto do nome
-            const name = (urlParams.name || "NEON").toUpperCase();
-            ctx.font = "900 80px Orbitron, sans-serif";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "top";
-            ctx.fillStyle = "#ffffff";
-            ctx.fillText(name, W/2, 200);
+            // Linhas decorativas neon
+            ctx.strokeStyle = "#00f7ff";
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            
+            // Linha superior
+            ctx.beginPath();
+            ctx.moveTo(50, 50);
+            ctx.lineTo(W-50, 50);
+            ctx.stroke();
 
-            // Texto da velocidade
+            // Linha inferior
+            ctx.beginPath();
+            ctx.moveTo(50, H-50);
+            ctx.lineTo(W-50, H-50);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+
+            // Círculos decorativos neon
+            ctx.strokeStyle = "#b400ff";
+            ctx.lineWidth = 2;
+            
+            // Círculo esquerdo
+            ctx.beginPath();
+            ctx.arc(100, H/2, 30, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Círculo direito
+            ctx.beginPath();
+            ctx.arc(W-100, H/2, 30, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Texto do nome com efeito neon
+            const name = (urlParams.name || "NEON").toUpperCase();
+            ctx.font = "900 80px 'Orbitron', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            
+            // Sombra do texto (efeito glow)
+            ctx.shadowColor = '#00f7ff';
+            ctx.shadowBlur = 20;
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(name, W/2, 180);
+            ctx.shadowBlur = 0;
+
+            // Texto da velocidade com efeito neon
             const speed = String(urlParams.speed || "999");
-            ctx.font = "900 70px Orbitron, sans-serif";
+            ctx.font = "900 100px 'Orbitron', sans-serif";
+            ctx.shadowColor = '#b400ff';
+            ctx.shadowBlur = 25;
             ctx.fillStyle = "#00f7ff";
             ctx.fillText(speed, W/2, 300);
+            ctx.shadowBlur = 0;
 
             // Texto do label
             const label = (urlParams.label || "VELOCIDADE").toUpperCase();
-            ctx.font = "700 40px Orbitron, sans-serif";
+            ctx.font = "700 40px 'Orbitron', sans-serif";
             ctx.fillStyle = "#ffffff";
-            ctx.fillText(label, W/2, 400);
+            ctx.fillText(label, W/2, 380);
 
             // Texto do sistema (opcional)
             const system = (urlParams.system || "").toUpperCase();
             if (system) {
-                ctx.font = "600 28px Orbitron, sans-serif";
+                ctx.font = "600 28px 'Orbitron', sans-serif";
                 ctx.fillStyle = "#b8e6ff";
-                ctx.fillText(system, W/2, 450);
+                ctx.fillText(system, W/2, 430);
             }
 
-            // Retornar a imagem como data URL
-            const dataURL = canvas.toDataURL("image/png");
+            // Data e hora
+            const datetime = urlParams.datetime || new Date().toLocaleString('pt-BR');
+            ctx.font = "500 20px 'Orbitron', sans-serif";
+            ctx.fillStyle = "#a0b3e0";
+            ctx.fillText(datetime, W/2, 500);
+
+            // Elementos decorativos nos cantos
+            ctx.strokeStyle = "#ff00c8";
+            ctx.lineWidth = 2;
             
-            // Se for uma requisição API, retornar JSON com a imagem
+            // Canto superior esquerdo
+            ctx.beginPath();
+            ctx.moveTo(50, 50);
+            ctx.lineTo(80, 50);
+            ctx.moveTo(50, 50);
+            ctx.lineTo(50, 80);
+            ctx.stroke();
+
+            // Canto superior direito
+            ctx.beginPath();
+            ctx.moveTo(W-50, 50);
+            ctx.lineTo(W-80, 50);
+            ctx.moveTo(W-50, 50);
+            ctx.lineTo(W-50, 80);
+            ctx.stroke();
+
+            // Canto inferior esquerdo
+            ctx.beginPath();
+            ctx.moveTo(50, H-50);
+            ctx.lineTo(80, H-50);
+            ctx.moveTo(50, H-50);
+            ctx.lineTo(50, H-80);
+            ctx.stroke();
+
+            // Canto inferior direito
+            ctx.beginPath();
+            ctx.moveTo(W-50, H-50);
+            ctx.lineTo(W-80, H-50);
+            ctx.moveTo(W-50, H-50);
+            ctx.lineTo(W-50, H-80);
+            ctx.stroke();
+
+            // Badge "PREMIUM" estilo neon
+            ctx.fillStyle = "rgba(0, 247, 255, 0.1)";
+            ctx.fillRect(W/2 - 60, 520, 120, 40);
+            
+            ctx.strokeStyle = "#00f7ff";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(W/2 - 60, 520, 120, 40);
+            
+            ctx.font = "700 18px 'Orbitron', sans-serif";
+            ctx.fillStyle = "#00f7ff";
+            ctx.fillText("PREMIUM", W/2, 545);
+        }
+
+        // Função principal
+        async function generateBanner() {
+            const urlParams = getUrlParams();
+            
+            // Aguardar fontes carregarem
+            await document.fonts.load('900 80px "Orbitron"');
+            await document.fonts.load('900 100px "Orbitron"');
+            await document.fonts.load('700 40px "Orbitron"');
+            
+            // Desenhar o banner
+            drawNeonElements();
+            
+            // Se há parâmetros na URL, retornar para API
             if (Object.keys(urlParams).length > 0) {
-                const response = {
-                    success: true,
-                    message: "Banner gerado com sucesso",
-                    image: dataURL,
-                    timestamp: new Date().toISOString(),
-                    parameters: urlParams
-                };
-                
-                // Esconder canvas e mostrar JSON
-                canvas.style.display = 'none';
-                document.body.innerHTML = '<pre>' + JSON.stringify(response, null, 2) + '</pre>';
+                // Converter canvas para blob
+                canvas.toBlob((blob) => {
+                    // Criar URL local para o blob
+                    const imageUrl = URL.createObjectURL(blob);
+                    
+                    // Retornar JSON com a URL local
+                    const response = {
+                        success: true,
+                        message: "Banner neon gerado com sucesso",
+                        localStream: imageUrl,
+                        blobUrl: imageUrl,
+                        timestamp: new Date().toISOString(),
+                        parameters: urlParams,
+                        dimensions: {
+                            width: canvas.width,
+                            height: canvas.height
+                        }
+                    };
+                    
+                    // Esconder canvas e retornar JSON
+                    canvas.style.display = 'none';
+                    document.body.innerHTML = '<pre style="color: white; background: black; padding: 20px;">' + 
+                        JSON.stringify(response, null, 2) + '</pre>';
+                        
+                    console.log('Banner gerado! URL local:', imageUrl);
+                    
+                }, 'image/png', 1.0);
             }
         }
 
-        // Carregar fontes e iniciar
+        // Carregar fontes do Google
         const link = document.createElement('link');
-        link.href = 'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap';
+        link.href = 'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&display=swap';
         link.rel = 'stylesheet';
         document.head.appendChild(link);
 
-        // Aguardar fontes carregarem e desenhar
-        setTimeout(drawBanner, 100);
+        // Iniciar quando a página carregar
+        window.addEventListener('load', generateBanner);
     </script>
 </body>
 </html>
